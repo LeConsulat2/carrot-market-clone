@@ -8,17 +8,22 @@ export default function Home() {
         {['Jonathan', 'Me', 'You', 'Mcdonalds'].map((person, index) => (
           <div
             key={index}
-            className="flex items-center gap-4 odd:bg-gray-300 even:bg-cyan-100 rounded-xl p-1  "
+            className="flex items-center gap-4 odd:bg-gray-300 even:bg-cyan-100 rounded-xl p-1 group  "
           >
             <div className="size-8 bg-blue-400 rounded-full" />
             <div>
-              <span className="text-lg font-medium">{person}</span>
+              <span className="text-lg font-medium group-hover:text-green-400">
+                {person}
+              </span>
             </div>
             <div className="size-6 bg-red-500 text-white flex justify-center items-center rounded-full">
               <span>{index}</span>
             </div>
           </div>
         ))}
+        <button className="flex flex-row justify-center bg-black font-medium font-serif text-white rounded-xl">
+          Submit
+        </button>
       </div>
     </main>
   );
