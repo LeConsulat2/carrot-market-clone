@@ -1,30 +1,28 @@
+import Link from 'next/link';
+
 export default function Home() {
   return (
-    <main className="bg-gray-300  sm:bg-red-200 md:bg-green-200 lg:bg-cyan-300 xl:bg-slate-950 h-screen flex items-center justify-center p-5 ">
-      <div
-        className="bg-white w-full  shadow-lg  
-      rounded-2xl max-w-screen-sm p-5 dark:bg-white flex flex-col gap-3 "
-      >
-        {['Jonathan', 'Me', 'You', 'Mcdonalds'].map((person, index) => (
-          <div
-            key={index}
-            className="flex items-center gap-4 odd:bg-gray-300 even:bg-cyan-100 rounded-xl p-1 group  "
-          >
-            <div className="size-8 bg-blue-400 rounded-full" />
-            <div>
-              <span className="text-lg font-medium group-hover:text-green-400">
-                {person}
-              </span>
-            </div>
-            <div className="size-6 bg-red-500 text-white flex justify-center items-center rounded-full">
-              <span>{index}</span>
-            </div>
-          </div>
-        ))}
-        <button className="flex flex-row justify-center bg-black font-medium font-serif text-white rounded-xl">
-          Submit
-        </button>
+    <div className="flex flex-col items-center justify-between min-h-screen p-6">
+      <div className="my-auto flex flex-col items-center gap-2 *:font-medium">
+        <span className="text-9xl hover:animate-pulse transition-colors">
+          🥕
+        </span>
+        <h1 className="text-4xl inline-block hover:animate-pulse">Carrot</h1>
+        <h2 className="text-2xl inline-block hover:animate-pulse">
+          Welcome to Carrot-Market Clone Page!
+        </h2>
       </div>
-    </main>
+      <div className="flex flex-col items-center gap-3 w-full">
+        <Link href="/create-account" className="primary-btn py-2.5">
+          Start
+        </Link>
+        <div className="flex gap-2">
+          <span>Already have an account with us?</span>
+          <Link href="/login" className="hover:underline">
+            Login
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }
