@@ -5,6 +5,7 @@ import SocialLogin from '@/components/social-login';
 export default function Login() {
   async function handleForm(formData: FormData) {
     'use server';
+    await new Promise((resolve) => setTimeout(resolve, 5000));
     console.log(formData.get('email'), formData.get('password'));
   }
 
