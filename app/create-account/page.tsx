@@ -1,6 +1,6 @@
 'use client';
 
-import FormInput from '@/components/form-input';
+import Input from '@/components/input';
 import SocialLogin from '@/components/social-login';
 import { createAccount } from './actions';
 import { useActionState } from 'react';
@@ -16,22 +16,22 @@ export default function CreateAccount() {
       </div>
 
       <form action={formAction} className="flex flex-col gap-3">
-        <FormInput
+        <Input
           name="username"
           type="text"
           placeholder="Username"
           required
           errors={state?.errors?.username}
         />
-        <FormInput name="email" type="email" placeholder="Email" required />
-        <FormInput
+        <Input name="email" type="email" placeholder="Email" required />
+        <Input
           name="password"
           type="password"
           placeholder="Password"
           required
           errors={state?.errors?.password}
         />
-        <FormInput
+        <Input
           name="confirm_password"
           type="password"
           placeholder="Confirm Password"
