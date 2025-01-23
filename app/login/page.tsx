@@ -3,9 +3,11 @@
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import FormButton from '@/components/button';
-import FormInput from '@/components/form-input';
+import Input from '@/components/input';
 import SocialLogin from '@/components/social-login';
-import { handleForm } from './actions';
+import { login } from './actions';
+import { PASSWORD_REGEX } from '@/lib/constants';
+import { PASSWORD_MIN_LENGTH } from '@/lib/constants';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -18,7 +20,7 @@ export default function LogIn() {
     data: null,
   };
 
-  const [state, action] = useActionState(handleForm, initialState);
+  const [state, action] = useActionState(login, initialState);
 
   return (
     <div className="flex flex-col gap-10 py-8 px-5">
@@ -27,12 +29,14 @@ export default function LogIn() {
         <h2>Please log in with your email</h2>
       </div>
       <form action={action} className="flex flex-col gap-3">
-        <FormInput name="email" type="email" placeholder="Email" required />
-        <FormInput
+        <Input name="email" type="email" placeholder="Email" required />
+        <Input
           name="password"
           type="password"
           placeholder="Password"
           required
+          minLength={PASSWORD_MIN_LENGTH}
+          pattern={PASSWORD_REGEX.toString()}
         />
         <SubmitButton />
       </form>

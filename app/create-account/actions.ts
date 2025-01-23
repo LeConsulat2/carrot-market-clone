@@ -1,13 +1,11 @@
 'use server';
+import { PASSWORD_MIN_LENGTH, PASSWORD_REGEX_ERROR } from '@/lib/constants';
+import { PASSWORD_REGEX } from '@/lib/constants';
 import { z } from 'zod';
 
 function checkUsername(username: string) {
   return username.includes('aut') ? false : true;
 }
-
-const passwordRegex = new RegExp(
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/,
-);
 
 /*if (username.includes('aut')) {
   return false;
@@ -33,20 +31,12 @@ const formSchema = z
       .refine(checkUsername, 'Username cannot include AUT'),
 
     email: z.string().email().toLowerCase(),
-    password: z
-      .string()
-      .min(8)
-      .regex(
-        passwordRegex,
-        'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
-      ),
+    password: z.string().min(PASSWORD_MIN_LENGTH).regex(PASSWORD_REGEX),
+
     confirm_password: z
       .string()
-      .min(8)
-      .regex(
-        passwordRegex,
-        'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
-      ),
+      .min(PASSWORD_MIN_LENGTH)
+      .regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
   })
   .refine((data) => data.password === data.confirm_password, {
     message: 'Passwords do not match',
