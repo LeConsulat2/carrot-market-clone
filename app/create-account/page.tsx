@@ -6,7 +6,7 @@ import { createAccount } from './actions';
 import { useActionState } from 'react';
 
 export default function CreateAccount() {
-  const [state, formAction, isPending] = useActionState(createAccount, null);
+  const [state, dispatch, isPending] = useActionState(createAccount, null);
 
   return (
     <div className="flex flex-col gap-10 py-8 px-5">
@@ -15,7 +15,7 @@ export default function CreateAccount() {
         <h2>Check out the Form below to explore!</h2>
       </div>
 
-      <form action={formAction} className="flex flex-col gap-3">
+      <form action={dispatch} className="flex flex-col gap-3">
         <Input
           name="username"
           type="text"
