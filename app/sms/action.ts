@@ -1,73 +1,85 @@
 'use server';
 
 import { z } from 'zod';
+import validator from 'validator';
+import { redirect } from 'next/navigation';
 
-// State 타입을 명시적으로 정의
-// errors는 각 필드별 에러 메시지 배열을 담는 객체
-// data는 성공 시 반환할 데이터 객체
-type State = {
-  errors: {
+// 타입 정의
+type ActionState = {
+  token: boolean;
+  errors?: {
     mobile_number?: string[];
     verification_code?: string[];
-    _form?: string[]; // 폼 전체 에러를 위한 필드
+    _form?: string[];
   };
-  data: { success: boolean } | null;
 };
 
 // Zod 스키마 정의
-// 필드명은 form의 input name 속성과 일치해야 함
-const smsSchema = z.object({
-  mobile_number: z.string().min(10, 'Invalid mobile number'),
-  verification_code: z.string().min(4, 'Invalid verification code'),
-});
+const mobileNumberSchema = z
+  .string()
+  .trim()
+  .refine(
+    (number) => validator.isMobilePhone(number, 'en-NZ'),
+    '올바른 휴대폰 번호를 입력해주세요',
+  );
 
-// Server Action 함수
-// prevState: 이전 상태 (현재는 any 타입)
-// formData: 폼에서 전송된 데이터
-// Promise<State>: 함수가 State 타입의 Promise를 반환한다는 의미
-export async function smsLogin(
-  prevState: any,
+const verificationCodeSchema = z.coerce
+  .number()
+  .min(100000, '인증번호는 6자리여야 합니다')
+  .max(999999, '인증번호는 6자리여야 합니다');
+
+export async function SMSLogin(
+  prevState: ActionState,
   formData: FormData,
-): Promise<State> {
+): Promise<ActionState> {
   try {
-    // FormData에서 값을 추출하여 객체로 변환
-    // get() 메서드로 각 필드의 값을 가져옴
-    const data = {
-      mobile_number: formData.get('mobile_number'),
-      verification_code: formData.get('verification_code'),
-    };
+    const mobile_number = formData.get('mobile_number')?.toString();
+    const verification_code = formData.get('verification_code')?.toString();
 
-    // Zod로 데이터 유효성 검사
-    // safeParse()는 유효성 검사 결과를 객체로 반환
-    const result = smsSchema.safeParse(data);
+    // 첫 단계: 휴대폰 번호 검증
+    if (!prevState.token) {
+      const result = mobileNumberSchema.safeParse(mobile_number);
 
-    // 유효성 검사 실패 시
-    if (!result.success) {
+      if (!result.success) {
+        return {
+          token: false,
+          errors: {
+            mobile_number: [result.error.errors[0].message],
+          },
+        };
+      }
+
+      // TODO: 실제 SMS 발송 로직
+      // await sendVerificationSMS(result.data);
+
       return {
-        errors: result.error.flatten().fieldErrors, // Zod의 에러 메시지를 필드별로 정리
-        data: null,
+        token: true,
+        errors: {},
       };
     }
 
-    // 여기서 실제 SMS 인증 로직 구현
-    // const verification = await verifySMSCode(result.data);
+    // 두 번째 단계: 인증번호 검증
+    const result = verificationCodeSchema.safeParse(verification_code);
 
-    // 성공 시 반환값
-    return {
-      errors: {}, // 에러 없음
-      data: { success: true }, // 성공 데이터
-    };
+    if (!result.success) {
+      return {
+        token: true,
+        errors: {
+          verification_code: [result.error.errors[0].message],
+        },
+      };
+    }
+
+    // TODO: 실제 인증번호 확인 로직
+    // await verifyCode(mobile_number, result.data);
+
+    redirect('/'); // 인증 성공시 리다이렉트
   } catch (error) {
-    // 예상치 못한 에러 발생 시
     return {
+      token: prevState.token,
       errors: {
-        _form: [
-          error instanceof Error
-            ? error.message // Error 객체면 메시지 사용
-            : 'An error occurred', // 아니면 기본 메시지
-        ],
+        _form: [error instanceof Error ? error.message : '오류가 발생했습니다'],
       },
-      data: null,
     };
   }
 }

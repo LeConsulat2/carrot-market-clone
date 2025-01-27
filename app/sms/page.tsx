@@ -3,25 +3,51 @@
 import Button from '@/components/button';
 import Input from '@/components/input';
 import { useActionState } from 'react';
-import { smsLogin } from './action';
+import { SMSLogin } from './action';
 import { useFormStatus } from 'react-dom';
+import { useState } from 'react';
 
-export default function SMSLogin() {
-  // login 페이지처럼 initialState 추가
+export default function SMSLoginPage() {
   const initialState = {
-    errors: {},
-    data: null,
+    token: false,
+    error: undefined,
   };
 
-  const [state, dispatch] = useActionState(smsLogin, initialState); // isPending 대신 useFormStatus 사용
+  const [mobileNumber, setMobileNumber] = useState<string>('');
+  const [state, dispatch] = useActionState(SMSLogin, initialState);
 
-  // login 페이지처럼 별도의 SubmitButton 컴포넌트
   function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-      <Button loading={pending} text={pending ? 'Verifying...' : 'Verify'} />
+      <Button
+        loading={pending}
+        text={
+          // 1. 먼저 pending 상태 체크
+          pending
+            ? 'Verifying...' // pending이 true면 이 텍스트 표시
+            : // 2. pending이 false일 때, state.token 체크
+            state.token
+            ? 'Verify Token' // token이 true면 이 텍스트
+            : 'Send Verification SMS' // token이 false면 이 텍스트
+        }
+      />
     );
   }
+
+  const handleSubmit = (formData: FormData) => {
+    if (!state.token) {
+      setMobileNumber(formData.get('mobile_number') as string);
+    }
+    dispatch(formData);
+  };
+
+  // onChange 핸들러 추가
+  const handleMobileNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!state.token) {
+      // token이 false일 때만 변경 가능
+      setMobileNumber(e.target.value);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-10 py-8 px-5">
@@ -29,26 +55,32 @@ export default function SMSLogin() {
         <h1 className="text-2xl">SMS Login</h1>
         <h2>Verify your phone number.</h2>
       </div>
-      <form action={dispatch} className="flex flex-col gap-3">
+      <form action={handleSubmit} className="flex flex-col gap-3">
         <Input
           name="mobile_number"
           type="number"
           placeholder="Mobile Number"
           required
-          errors={state?.errors?.mobile_number || []}
+          value={mobileNumber}
+          onChange={handleMobileNumberChange} // onChange 핸들러 추가
+          readOnly={state.token} // token이 true일 때만 읽기 전용
+          errors={state.errors?.mobile_number || []}
         />
-        <Input
-          name="verification_code"
-          type="number"
-          placeholder="Verification Code"
-          required
-          errors={state?.errors?.verification_code || []} // 배열 중첩 제거
+        {state.token && (
+          <Input
+            name="verification_code"
+            type="number"
+            placeholder="Verification Code"
+            required
+            min={100000}
+            max={999999}
+            errors={state.errors?.verification_code || []}
+          />
+        )}
+        <SubmitButton
+          text={state.token ? 'Verify Token' : 'Send Verification SMS'}
         />
-        <SubmitButton /> {/* 별도 컴포넌트 사용 */}
       </form>
-      {state?.data && ( // 성공 메시지 추가
-        <p className="text-green-500">Verification successful!</p>
-      )}
     </div>
   );
 }
