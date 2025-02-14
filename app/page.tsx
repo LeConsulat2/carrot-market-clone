@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import db from '@/lib/db';
 
 export default function Home() {
   return (
