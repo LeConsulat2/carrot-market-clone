@@ -2,6 +2,7 @@
 import { PASSWORD_MIN_LENGTH, PASSWORD_REGEX_ERROR } from '@/lib/constants';
 import { PASSWORD_REGEX } from '@/lib/constants';
 import { z } from 'zod';
+import bcrypt from 'bcrypt';
 import db from '@/lib/db';
 
 const checkUniqueUsername = async (username: string) => {
@@ -87,6 +88,15 @@ export async function createAccount(prevState: any, formData: FormData) {
 
   if (!result.success) {
     return { errors: result.error.flatten().fieldErrors };
+  } else {
+    const hashedPassword = await bcrypt.hash(result.data.password, 12);
+    const user = await db.user.create({
+      data: {
+        username: result.data.username,
+        email: result.data.email,
+        password: hashedPassword,
+      },
+    });
   }
 
   // Since email and username uniqueness are now checked in the schema,
