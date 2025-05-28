@@ -11,7 +11,7 @@ import { z } from 'zod';
 import { redirect } from 'next/navigation';
 import getSession from '@/lib/session';
 
-const checkUsername = (username: string) => !username.includes('aut');
+const checkUsername = (username: string) => !username.includes('potato');
 
 const checkPasswords = ({
   password,
@@ -31,8 +31,9 @@ const formSchema = z
       .toLowerCase()
       .trim()
       // .transform((username) => `🔥 ${username} 🔥`)
-      .refine(checkUsername, 'username cannot include aut'),
+      .refine(checkUsername, 'No potatoes allowed!'),
     email: z.string().email().toLowerCase(),
+
     password: z.string().min(PASSWORD_MIN_LENGTH),
     //.regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
     confirm_password: z.string().min(PASSWORD_MIN_LENGTH),
@@ -68,7 +69,7 @@ const formSchema = z
     if (user) {
       ctx.addIssue({
         code: 'custom',
-        message: 'This email has already been registered',
+        message: 'This email is already taken',
         path: ['email'],
         fatal: true,
       });
@@ -89,6 +90,7 @@ export async function createAccount(prevState: any, formData: FormData) {
   };
   const result = await formSchema.spa(data);
   if (!result.success) {
+    console.log(result.error.flatten());
     return result.error.flatten();
   } else {
     const hashedPassword = await bcrypt.hash(result.data.password, 12);
@@ -105,7 +107,6 @@ export async function createAccount(prevState: any, formData: FormData) {
     const session = await getSession();
     session.id = user.id;
     await session.save();
-
     redirect('/profile');
   }
 }

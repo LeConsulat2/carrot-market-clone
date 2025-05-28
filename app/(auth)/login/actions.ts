@@ -41,12 +41,12 @@ const formSchema = z.object({
   // .regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
 });
 
-export async function logIn(prevState: any, formData: FormData) {
+export async function login(prevState: any, formData: FormData) {
   const data = {
     email: formData.get('email'),
     password: formData.get('password'),
   };
-  const result = await formSchema.spa(data);
+  const result = await formSchema.safeParseAsync(data);
   if (!result.success) {
     return result.error.flatten();
   } else {
@@ -66,6 +66,7 @@ export async function logIn(prevState: any, formData: FormData) {
     if (ok) {
       const session = await getSession();
       session.id = user!.id;
+      await session.save();
       redirect('/profile');
     } else {
       return {
