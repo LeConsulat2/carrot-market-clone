@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,7 +6,6 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
-
 
 model User {
   id Int @id @default(autoincrement())
@@ -20,7 +18,7 @@ model User {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   sms_tokens SMSToken[]
-
+  products Product[]
 }
 
 model SMSToken {
@@ -38,7 +36,6 @@ model Product {
   price Float
   photo String
   description String
-
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   user User @relation(fields: [userId], references: [id])
