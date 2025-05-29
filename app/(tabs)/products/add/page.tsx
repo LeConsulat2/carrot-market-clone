@@ -8,47 +8,60 @@ import { uploadProduct } from "./actions";
 
 export default function AddProduct() {
   const [preview, setPreview] = useState("");
+  const [error, setError] = useState(""); // 에러 메시지 상태 추가
+
   const onImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    // 파일 사이즈 체크 (5MB = 5 * 1024 * 1024 바이트)
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Maximum file size is 5MB.");
+      setPreview("");
+      return;
+    }
+    setError(""); // 에러 초기화
     const url = URL.createObjectURL(file);
     setPreview(url);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800 flex items-center justify-center px-4">
-      <form action={uploadProduct}
+      <form
+        action={uploadProduct}
         className="w-full max-w-md bg-neutral-900/90 rounded-3xl shadow-xl p-8 flex flex-col gap-6 border border-neutral-800"
         autoComplete="off"
       >
         <label
-  htmlFor="photo"
-  className={[
-    "border-2 border-dashed border-neutral-700 rounded-2xl aspect-square flex flex-col items-center justify-center gap-3 cursor-pointer group transition-all",
-    preview
-      ? ""
-      : "bg-neutral-800/40 hover:bg-neutral-800/70 text-neutral-400",
-  ].join(" ")}
-  style={
-    preview
-      ? {
-          backgroundImage: `url(${preview})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }
-      : undefined
-  }
->
-  {preview === "" && (
-    <>
-      <PhotoIcon className="w-20 h-20 text-primary-500 group-hover:scale-110 transition-transform duration-200" />
-      <div className="text-neutral-400 text-base font-medium group-hover:text-primary-400">
-        Add a product photo
-      </div>
-    </>
-  )}
-</label>
-
+          htmlFor="photo"
+          className={[
+            "border-2 border-dashed border-neutral-700 rounded-2xl aspect-square flex flex-col items-center justify-center gap-3 cursor-pointer group transition-all",
+            preview
+              ? ""
+              : "bg-neutral-800/40 hover:bg-neutral-800/70 text-neutral-400",
+          ].join(" ")}
+          style={
+            preview
+              ? {
+                  backgroundImage: `url(${preview})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }
+              : undefined
+          }
+        >
+          {preview === "" && (
+            <>
+              <PhotoIcon className="w-20 h-20 text-primary-500 group-hover:scale-110 transition-transform duration-200" />
+              <div className="text-neutral-400 text-base font-medium group-hover:text-primary-400">
+                Add a product photo
+              </div>
+            </>
+          )}
+        </label>
+        {/* 에러 메시지 영역 */}
+        {error && (
+          <div className="text-red-500 text-sm font-medium -mt-4 mb-1">{error}</div>
+        )}
         <input
           onChange={onImageChange}
           type="file"
