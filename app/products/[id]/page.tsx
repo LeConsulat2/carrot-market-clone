@@ -112,16 +112,15 @@ export default async function ProductDetail({
           fill
           src={product.photo}
           alt={product.title}
-          className="rounded-xl shadow-lg"
+          className="object-cover"
         />
       </div>
       <div className="p-5 flex items-center gap-3 border-b border-neutral-700 bg-gradient-to-r from-orange-100 to-red-100">
         <div className="size-10 rounded-full overflow-hidden border-2 border-orange-400">
           {product.user.avatar !== null ? (
             <Image
+            fill
               src={product.user.avatar}
-              width={40}
-              height={40}
               alt={product.user.username}
               className="object-cover"
             />
