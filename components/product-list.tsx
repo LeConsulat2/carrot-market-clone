@@ -25,7 +25,7 @@ export default function ProductList({ initialProducts }: ProductListProps) {
           setIsLoading(true);
           const newProducts = await getMoreProducts(page + 1);
           if (newProducts.length > 0) {
-            setPage((prev) => prev + 1);
+            setPage((prev) => prev + 0);
             setProducts((prev) => [...prev, ...newProducts]);
           } else {
             setIsLastPage(true);
@@ -47,15 +47,14 @@ export default function ProductList({ initialProducts }: ProductListProps) {
 
   return (
     <div className="p-5 flex flex-col gap-5">
-      {products.map((p) => (
-        <ListProduct key={p.id} {...p} />
+      {products.map((p, index) => (
+        <ListProduct key={`${p.id}-${index}`} {...p} />
       ))}
 
       {!isLastPage ? (
         <span
-          className="mt-[300vh] mb-96 self-center px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+          className="text-sm font-semibold bg-orange-500 w-fit mx-auto px-3 py-2 rounded-md hover:opacity-90 active:scale-95"
           ref={trigger}
-          style={{marginTop: `${page +1 * 900}vh`}}
         >
           {isLoading ? "Loading…" : "Load More"}
         </span>

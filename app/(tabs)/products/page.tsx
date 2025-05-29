@@ -3,6 +3,7 @@ import db from '@/lib/db';
 import Link from 'next/link';
 import ProductList from '@/components/product-list';
 import { Prisma } from '@prisma/client';
+import { PlusIcon } from '@heroicons/react/16/solid';
 
 function DeletedBanner() {
   return (
@@ -65,6 +66,10 @@ export default async function Products({
     <div className="p-5 flex flex-col gap-5">
       {searchParams?.deleted === '1' && <DeletedBanner />}
      <ProductList initialProducts={initialProducts} />
+     <Link href="/products/add" className="primary-btn">
+        Add Product
+        <PlusIcon className="size-10" />
+     </Link>
     </div>
   );
 }
