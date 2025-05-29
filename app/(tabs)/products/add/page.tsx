@@ -5,6 +5,7 @@ import { useState } from "react";
 import Input from "@/components/input";
 import Button from "@/components/button";
 import { uploadProduct } from "./actions";
+import { useActionState } from "react";
 
 export default function AddProduct() {
   const [preview, setPreview] = useState("");
@@ -23,11 +24,13 @@ export default function AddProduct() {
     const url = URL.createObjectURL(file);
     setPreview(url);
   };
-
+  const [state, action] = useActionState(uploadProduct, null);
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800 flex items-center justify-center px-4">
       <form
-        action={uploadProduct}
+        action={action}
+        method="POST"
+        encType="multipart/form-data"
         className="w-full max-w-md bg-neutral-900/90 rounded-3xl shadow-xl p-8 flex flex-col gap-6 border border-neutral-800"
         autoComplete="off"
       >
@@ -49,19 +52,30 @@ export default function AddProduct() {
               : undefined
           }
         >
-          {preview === "" && (
+          {preview === "" ? (
             <>
               <PhotoIcon className="w-20 h-20 text-primary-500 group-hover:scale-110 transition-transform duration-200" />
               <div className="text-neutral-400 text-base font-medium group-hover:text-primary-400">
                 Add a product photo
               </div>
+              {state?.fieldErrors.photo && (
+                <div className="text-red-500 text-sm font-medium -mt-4 mb-1">
+                  {state?.fieldErrors.photo[0]}
+                </div>
+              )}
             </>
+          ) : (
+            <div className="flex flex-col gap-2 *:rounded-md">
+              <div className="bg-neutral-700 h-5 w-40" />
+              <div className="bg-neutral-700 h-5 w-20" />
+              <div className="bg-neutral-700 h-5 w-10" />
+            </div>
           )}
         </label>
-        {/* 에러 메시지 영역 */}
-        {error && (
-          <div className="text-red-500 text-sm font-medium -mt-4 mb-1">{error}</div>
-        )}
+        {/* 에러 메시지 영역
+        {state?.error && (
+          <div className="text-red-500 text-sm font-medium -mt-4 mb-1">{state?.error}</div>
+        )} */}
         <input
           onChange={onImageChange}
           type="file"
@@ -77,6 +91,7 @@ export default function AddProduct() {
           placeholder="Product Name"
           type="text"
           className="input-glass"
+          errors={state?.fieldErrors.title}
         />
         <Input
           name="price"
@@ -84,6 +99,7 @@ export default function AddProduct() {
           required
           placeholder="Price (NZD)"
           className="input-glass"
+          errors={state?.fieldErrors.price}
         />
         <Input
           name="description"
@@ -91,6 +107,7 @@ export default function AddProduct() {
           required
           placeholder="Detailed description"
           className="input-glass"
+          errors={state?.fieldErrors.description}
         />
 
         <Button

@@ -44,3 +44,5 @@ next-env.d.ts
 *.db-journal
 
 Notes for Nextjs.docx
+
+ignore.md
