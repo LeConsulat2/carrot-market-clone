@@ -22,20 +22,33 @@ export default function AddProduct() {
         autoComplete="off"
       >
         <label
-          htmlFor="photo"
-          className="border-2 border-dashed border-neutral-700 rounded-2xl aspect-square flex flex-col items-center justify-center gap-3 text-neutral-400 hover:border-primary-500 transition-all cursor-pointer bg-neutral-800/40 hover:bg-neutral-800/70 group"
-          style={{backgroundImage: `url(${preview})`, backgroundSize: "cover", backgroundPosition: "center"}}>
-          
-          {preview === "" ? (
-            <>
-          
-            <PhotoIcon className="w-20 h-20 text-primary-500 group-hover:scale-110 transition-transform duration-200" />
-            <div className="text-neutral-400 text-base font-medium group-hover:text-primary-400">Add a product photo</div>
-            </>): null}
-          
-       
-          
-        </label>
+  htmlFor="photo"
+  className={[
+    "border-2 border-dashed border-neutral-700 rounded-2xl aspect-square flex flex-col items-center justify-center gap-3 cursor-pointer group transition-all",
+    preview
+      ? ""
+      : "bg-neutral-800/40 hover:bg-neutral-800/70 text-neutral-400",
+  ].join(" ")}
+  style={
+    preview
+      ? {
+          backgroundImage: `url(${preview})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }
+      : undefined
+  }
+>
+  {preview === "" && (
+    <>
+      <PhotoIcon className="w-20 h-20 text-primary-500 group-hover:scale-110 transition-transform duration-200" />
+      <div className="text-neutral-400 text-base font-medium group-hover:text-primary-400">
+        Add a product photo
+      </div>
+    </>
+  )}
+</label>
+
         <input
           onChange={onImageChange}
           type="file"
