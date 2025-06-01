@@ -1,17 +1,19 @@
-'use client';
+"use client";
 
 import { XMarkIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/navigation";
 
 export default function ModalCloseButton() {
   const router = useRouter();
-
+  const onCloseClick = () => {
+    router.back();
+  };
   return (
     <button
-      onClick={() => router.back()}
-      className="text-gray-800 hover:text-gray-600"
+      onClick={onCloseClick}
+      className="absolute right-5 top-5 text-neutral-200"
     >
-      <XMarkIcon className="w-6 h-6" />
+      <XMarkIcon className="size-10" />
     </button>
   );
 }
