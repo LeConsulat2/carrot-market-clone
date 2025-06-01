@@ -14,9 +14,9 @@ export default function AddProduct() {
   const onImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // 파일 사이즈 체크 (5MB = 5 * 1024 * 1024 바이트)
-    if (file.size > 5 * 1024 * 1024) {
-      setError("Maximum file size is 5MB.");
+    // 파일 사이즈 체크 (2MB = 2 * 1024 * 1024 바이트)
+    if (file.size > 2 * 1024 * 1024) {
+      setError("Maximum file size is 2MB.");
       setPreview("");
       return;
     }

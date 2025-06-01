@@ -4,13 +4,12 @@ import Link from 'next/link';                       // (3) Next.js 링크 컴포
 import ProductList from '@/components/product-list';// (4) 제품 목록 렌더링 컴포넌트
 import { Prisma } from '@prisma/client';            // (5) Prisma 타입 유틸리티
 import { PlusIcon } from '@heroicons/react/16/solid';// (6) Heroicons에서 플러스 아이콘 임포트
+import { unstable_cache as nextCache } from 'next/cache';
+
+const getCachedProducts = nextCache(getInitialProducts, ["home-products"])
 
 // (7) 서버에서 최초 제품 데이터를 가져오는 비동기 함수
 async function getInitialProducts() {
-  // ───────────────────────────────────────────────────────────────────────────
-  // (8) 실제 DB 쿼리 전에 딜레이를 주고 싶다면 아래 주석을 해제하세요
-  // await new Promise((resolve) => setTimeout(resolve, 5000));
-
   // (9) Prisma를 이용해 product 테이블에서 최신 제품 하나를 선택
   const products = await db.product.findMany({
     select: {
@@ -20,17 +19,16 @@ async function getInitialProducts() {
       photo: true,       // 이미지 URL 혹은 바이너리
       id: true,          // 고유 ID
     },
-    take: 1,              // 가장 최근 한 개만 가져오기
+    // take: 1,              // 가장 최근 한 개만 가져오기
     orderBy: {
       created_at: 'desc', // 생성일 기준 내림차순 정렬 → 최신순
     },
   });
-
   return products;       // (10) 조회된 배열 반환
 }
 
 // (11) getInitialProducts 함수의 반환값 타입을 Prisma 유틸로 추출
-export type initialProducts = Prisma.PromiseReturnType<typeof getInitialProducts>;
+export type initialProducts = Prisma.PromiseReturnType<typeof getCachedProducts>;
 
 // (12) 삭제 성공 시 상단에 표시할 배너 컴포넌트
 function DeletedBanner() {
@@ -61,7 +59,7 @@ function DeletedBanner() {
 
         {/* (15) 배너 닫기(리프레시) 링크 */}
         <Link
-          href="/products" 
+          href="/home" 
           className="ml-4 underline hover:text-orange-100 transition"
         >
           Dismiss
@@ -80,7 +78,7 @@ export default async function Products({
   searchParams: Promise<{ deleted?: string }>;
 }) {
   // (17) 1) 제품 목록 데이터 불러오기
-  const initialProducts = await getInitialProducts();
+  const initialProducts = await getCachedProducts();
 
   // (18) 2) searchParams 객체 자체를 await하여 해제(unwrap)하기
   const { deleted } = await searchParams;
@@ -96,14 +94,9 @@ export default async function Products({
 
       {/* (21) 제품 목록 컴포넌트에 초기 데이터 전달 */}
       <ProductList initialProducts={initialProducts} />
-
-      {/* (22) 새 제품 추가 페이지로 가는 버튼 */}
-      <Link href="/products/add" className="primary-btn">
-        Add Product
-        <PlusIcon className="size-10" />
-      </Link>
     </div>
   );
 }
 
 // 참고: <ListProduct id={product.id} title={product.title} ... /> 방식도 사용 가능
+

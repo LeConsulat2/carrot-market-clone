@@ -9,17 +9,12 @@ import { revalidatePath } from 'next/cache';
 
 async function getIsOwner(userId: number) {
   const session = await getSession();
-  if (session.id) {
-    return session.id === userId;
-  }
-  return false;
+  return session.id === userId;
 }
 
 async function getProduct(id: number) {
-  const product = await db.product.findUnique({
-    where: {
-      id,
-    },
+  return await db.product.findUnique({
+    where: { id },
     include: {
       user: {
         select: {
@@ -29,21 +24,21 @@ async function getProduct(id: number) {
       },
     },
   });
-  return product;
 }
 
-// Server action for deleting a product
 async function deleteProduct(formData: FormData) {
   'use server';
   const id = Number(formData.get('id'));
   const session = await getSession();
   const product = await db.product.findUnique({ where: { id } });
+
   if (!product || product.userId !== session.id) {
     throw new Error('Unauthorized');
   }
+
   await db.product.delete({ where: { id } });
   revalidatePath('/products');
-  redirect(`/products?deleted=1`);
+  redirect('/products?deleted=1');
 }
 
 function DeletedMessage() {
@@ -57,18 +52,10 @@ function DeletedMessage() {
           strokeWidth="2"
           viewBox="0 0 24 24"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M6 18L18 6M6 6l12 12"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
-        <h2 className="text-3xl font-extrabold text-red-600 mb-2 drop-shadow">
-          Product Deleted
-        </h2>
-        <p className="text-gray-700 mb-4 text-lg">
-          The product has been successfully deleted.
-        </p>
+        <h2 className="text-3xl font-extrabold text-red-600 mb-2 drop-shadow">Product Deleted</h2>
+        <p className="text-gray-700 mb-4 text-lg">The product has been successfully deleted.</p>
         <Link
           href="/products"
           className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-lg font-semibold shadow hover:scale-105 transition"
@@ -80,31 +67,42 @@ function DeletedMessage() {
   );
 }
 
+////// ✅ FIXED: Properly await `params` and `searchParams`
 export default async function ProductDetail({
   params,
   searchParams,
 }: {
-  params: { id: string };
-  searchParams?: { deleted?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ deleted?: string }>;
 }) {
-  // Show deleted message if redirected with ?deleted=1
-  if (searchParams?.deleted === '1') {
+  const [resolvedParams, resolvedSearchParams] = await Promise.all([
+    params,
+    searchParams,
+  ]);
+
+
+  if (resolvedSearchParams.deleted === '1') {
     return <DeletedMessage />;
   }
-  const id = Number(params.id);
+
+  const id = Number(resolvedParams.id);
+
   if (isNaN(id)) {
     return notFound();
   }
+
   const product = await getProduct(id);
   if (!product) {
     return notFound();
   }
-  // Ensure userId is selected
+
   const productWithUserId = await db.product.findUnique({
     where: { id },
     select: { userId: true },
   });
+
   const isOwner = await getIsOwner(productWithUserId?.userId ?? 0);
+
   return (
     <div>
       <div className="relative aspect-square">
@@ -119,7 +117,7 @@ export default async function ProductDetail({
         <div className="size-10 rounded-full overflow-hidden border-2 border-orange-400">
           {product.user.avatar !== null ? (
             <Image
-            fill
+              fill
               src={product.user.avatar}
               alt={product.user.username}
               className="object-cover"
@@ -155,13 +153,18 @@ export default async function ProductDetail({
             </button>
           </form>
         ) : null}
-        <Link
-          className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold shadow hover:bg-orange-600 transition"
-          href={''}
-        >
-          Start Chats
-        </Link>
+        {isOwner ? null : (
+          <Link
+            className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold shadow hover:bg-orange-600 transition"
+            href=""
+          >
+            Start Chats
+          </Link>
+        )}
+    
       </div>
     </div>
   );
 }
+
+
