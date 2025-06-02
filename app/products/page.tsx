@@ -50,7 +50,7 @@ function DeletedBanner() {
           Product deleted successfully.
         </span>
         <Link
-          href="/products" 
+          href="/home" 
           className="ml-4 underline hover:text-orange-100 transition"
         >
           Dismiss
