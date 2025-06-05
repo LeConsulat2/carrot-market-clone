@@ -8,6 +8,12 @@ const getCachedProducts = nextCache(getInitialProducts, ["home-products"], {
  
 });
 
+export const metadata = {
+  title: "Home",
+};
+
+export const dynamic = 'force-dynamic';
+
 async function getInitialProducts() {
   const products = await db.product.findMany({
     select: {
@@ -31,7 +37,7 @@ export default async function Products({
 }: {
   searchParams: Promise<{ deleted?: string }>;
 }) {
-  const initialProducts = await getCachedProducts();
+  const initialProducts = await getInitialProducts();
   const { deleted } = await searchParams;
   const showDeletedBanner = deleted === '1';
 

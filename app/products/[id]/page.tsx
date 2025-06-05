@@ -8,8 +8,8 @@ import { notFound, redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 
 async function getIsOwner(userId: number) {
-  const session = await getSession();
-  return session.id === userId;
+  // const session = await getSession();
+  // return session.id === userId;
 }
 
 async function getProduct(id: number) {
@@ -156,3 +156,15 @@ export default async function ProductDetail({
     </div>
   );
 }
+
+export async function generateStaticParams() {
+  const products = await db.product.findMany({
+    select: {
+      id: true,
+    },
+  });
+  return products.map((product) => ({
+    id: product.id.toString(),
+  }));
+}
+
