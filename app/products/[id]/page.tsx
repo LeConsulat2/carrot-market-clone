@@ -24,6 +24,7 @@ async function getProduct(id: number) {
       },
     },
   });
+  return product; 
 }
 
 async function deleteProduct(formData: FormData) {
@@ -93,6 +94,28 @@ export default async function ProductDetail({
     select: { userId: true },
   });
   const isOwner = await getIsOwner(productWithUserId?.userId ?? 0);
+  const createChatRoom = async () => {
+    "use server";
+    const session = await getSession();
+    const room = await db.chatRoom.create({
+      data: {
+        users: {
+          connect: [
+            {
+              id: product.userId,
+            },
+            {
+              id: session.id,
+            },
+          ]
+        }
+      },
+      select: {
+        id: true,
+      },
+    });
+    redirect(`/chats/${room.id}`);
+  }
   return (
     <div>
       <div className="relative aspect-square">
@@ -143,14 +166,14 @@ export default async function ProductDetail({
             </button>
           </form>
         ) : null}
-        {isOwner ? null : (
-          <Link
+        <form action={createChatRoom}>
+          <button
+            type="submit"
             className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold shadow hover:bg-orange-600 transition"
-            href=""
           >
             Start Chats
-          </Link>
-        )}
+          </button>
+        </form>
     
       </div>
     </div>
