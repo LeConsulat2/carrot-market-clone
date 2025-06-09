@@ -98,7 +98,7 @@ export default async function ProductDetail({
       <div className="relative aspect-square">
         <Image
           fill
-          src={product.photo}
+          src={`${product.photo}`}
           alt={product.title}
           className="object-cover"
         />
@@ -108,7 +108,7 @@ export default async function ProductDetail({
           {product.user.avatar !== null ? (
             <Image
               fill
-              src={product.user.avatar}
+              src={`${product.user.avatar}`}
               alt={product.user.username}
               className="object-cover"
             />

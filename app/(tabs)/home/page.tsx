@@ -3,6 +3,7 @@ import Link from 'next/link';
 import ProductList from '@/components/product-list';
 import { Prisma } from '@prisma/client';
 import { unstable_cache as nextCache } from 'next/cache';
+import { PlusIcon } from '@heroicons/react/24/solid';
 
 const getCachedProducts = nextCache(getInitialProducts, ["home-products"], {
  
@@ -12,7 +13,7 @@ export const metadata = {
   title: "Home",
 };
 
-export const dynamic = 'force-dynamic';
+// export const dynamic = 'force-dynamic';
 
 async function getInitialProducts() {
   const products = await db.product.findMany({
@@ -45,6 +46,13 @@ export default async function Products({
     <div className="p-5 flex flex-col gap-5">
       {showDeletedBanner && <DeletedBanner />}
       <ProductList initialProducts={initialProducts} />
+
+      <Link
+        href="/products/add"
+        className="bg-orange-500 flex items-center justify-center rounded-full size-16 fixed bottom-24 right-8 text-white transition-colors hover:bg-orange-400"Add commentMore actions
+      >
+        <PlusIcon className="size-10" />
+      </Link>
     </div>
   );
 }
