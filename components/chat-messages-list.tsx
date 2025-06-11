@@ -68,7 +68,16 @@ export default function ChatMessagesList({
       event: "message",
     }, (payload) => {
       // 기존 메시지 목록에 새 메시지 추가
-      setMessages((prevMessages) => [...prevMessages, payload.payload]);
+      // 자신이 보낸 메시지인지 확인하여 중복 추가 방지
+      const newMessage = payload.payload;
+      setMessages((prevMessages) => {
+        // 이미 존재하는 메시지인지 확인
+        const messageExists = prevMessages.some(msg => msg.id === newMessage.id);
+        if (messageExists) {
+          return prevMessages;
+        }
+        return [...prevMessages, newMessage];
+      });
     });
     
     // 채널 구독 시작
